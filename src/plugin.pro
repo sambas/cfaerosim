@@ -11,8 +11,8 @@ TARGET = plugin_AeroSIMRC
 copydata = 1
 
 RES_DIR    = $${PWD}/resources
-SIM_DIR    = "c:/qt2/AeroSIMRC_4.20-0.0_b743"
-PLUGIN_DIR = "c:/qt2/AeroSIMRC_4.20-0.0_b743/Plugin/CleanFlight"
+SIM_DIR    = "C:/CF_HIL/AeroSIM-RC"
+PLUGIN_DIR = "C:/CF_HIL/AeroSIM-RC/Plugin/CleanFlight"
 DLLDESTDIR = $$PLUGIN_DIR
 
 defineReplace(targetPath) {

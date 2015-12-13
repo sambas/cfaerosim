@@ -702,6 +702,14 @@ void FC_Serial::FeedBytes(QByteArray data)
         serialMSPreceive(data[i]);
 }
 
+float wrap_3600(float angle)
+{
+    if (angle > 3600)
+        angle -= 3600;
+    if (angle < 0)
+        angle += 3600;
+    return angle;
+}
 
 void FC_Serial::sendDatagram(const simToPlugin *stp)
 {
@@ -721,18 +729,18 @@ void FC_Serial::sendDatagram(const simToPlugin *stp)
         }
     }
 
-    telem.X = stp->accelX/9.810*-1000;
-    telem.Y = stp->accelY/9.810*-1000;
-    telem.Z = stp->accelZ/9.810*1000+1000;
+    telem.X = stp->accelXm/9.810*-1000;
+    telem.Y = stp->accelYm/9.810*-1000;
+    telem.Z = stp->accelZm/9.810*1000+1000;
     telem.Roll = -stp->roll*RAD2DEG*10;
     telem.Pitch = -stp->pitch*RAD2DEG*10;
-    telem.Yaw = stp->heading*RAD2DEG*10;
+    telem.Yaw = wrap_3600(stp->heading*RAD2DEG*10);
     telem.baroaltitude = stp->AGL*100;
     telem.GPS_latitude = stp->latitude*10e6;
     telem.GPS_longitude = stp->longitude*10e6;
     telem.GPS_altitude = stp->AGL;
     telem.GPS_speed = sqrt(pow(stp->velX,2) + pow(stp->velY,2))*100;
-    telem.MwHeading = stp->heading*RAD2DEG*10;
+    telem.MwHeading = wrap_3600(stp->heading*RAD2DEG*10);
     telem.GPS_numSat = 10;
 
 
