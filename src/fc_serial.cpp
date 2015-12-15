@@ -100,9 +100,10 @@ void  FC_Serial::serialMSPCheck()
   }
   if (cmdMSP==MSP_HIL_STATE)
   {
-      uint8_t i;
-    for(i=0;i<4;i++)
-        telem.input[i] = read16();
+    telem.input[0] = read16();
+    telem.input[1] = read16();
+    telem.input[2] = -read16(); // yaw is inverted here for some reason
+    telem.input[3] = read16();
   }
 
   if (cmdMSP==MSP_RAW_GPS)
@@ -729,9 +730,10 @@ void FC_Serial::sendDatagram(const simToPlugin *stp)
         }
     }
 
-    telem.X = stp->accelXm/9.810*-1000;
-    telem.Y = stp->accelYm/9.810*-1000;
-    telem.Z = stp->accelZm/9.810*1000+1000;
+    // Rotate gravity to body frame and account for different axis convention in CF
+    telem.X =  stp->accelYm * 100.0 + 981 * stp->axisYz;
+    telem.Y = -stp->accelXm * 100.0 - 981 * stp->axisXz;
+    telem.Z =  stp->accelZm * 100.0 + 981 * stp->axisZz;
     telem.Roll = -stp->roll*RAD2DEG*10;
     telem.Pitch = -stp->pitch*RAD2DEG*10;
     telem.Yaw = wrap_3600(stp->heading*RAD2DEG*10);
