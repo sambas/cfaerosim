@@ -319,7 +319,7 @@ public:
     void stop();
     // function getChannels for other threads
     void setChannels(pluginToSim *pts);
-    void getFlightStatus(quint8 &arm, quint8 &mod, quint8 &mixer);
+    void getFlightStatus(quint8 &arm, quint32 &mod, quint8 &mixer);
     quint8 getArmed()
     {
         return armed;

@@ -182,7 +182,7 @@ void Run_BlinkLEDs(const simToPlugin *stp,
         pts->newMenuStatus |= MenuLedGreen;
         int timeout;
         quint8 armed;
-        quint8 mode;
+        quint32 mode;
         quint8 mixer;
         sndr->getFlightStatus(armed, mode, mixer);
         debugInfo.append(QString("armed: %1, mode: %2, mixer: %3\n").arg(armed).arg(mode).arg(mixer));
@@ -200,36 +200,31 @@ void Run_BlinkLEDs(const simToPlugin *stp,
             ledTimer.restart();
             pts->newMenuStatus ^= MenuLedBlue;
         }
-
-        if (mode == 6) {
-            pts->newMenuStatus |= MenuFMode3;
-            pts->newMenuStatus |= MenuFMode2;
+        if(mode & (1<<0))
+        {
             pts->newMenuStatus |= MenuFMode1;
-        } else if (mode == 5) {
-            pts->newMenuStatus |= MenuFMode3;
-            pts->newMenuStatus |= MenuFMode2;
-            pts->newMenuStatus &= ~MenuFMode1;
-        } else if (mode == 4) {
-            pts->newMenuStatus |= MenuFMode3;
-            pts->newMenuStatus &= ~MenuFMode2;
-            pts->newMenuStatus |= MenuFMode1;
-        } else if (mode == 3) {
-            pts->newMenuStatus |= MenuFMode3;
-            pts->newMenuStatus &= ~MenuFMode2;
-            pts->newMenuStatus &= ~MenuFMode1;
-        } else if (mode == 2) {
-            pts->newMenuStatus &= ~MenuFMode3;
-            pts->newMenuStatus |= MenuFMode2;
-            pts->newMenuStatus &= ~MenuFMode1;
-        } else if (mode == 1) {
-            pts->newMenuStatus &= ~MenuFMode3;
-            pts->newMenuStatus &= ~MenuFMode2;
-            pts->newMenuStatus |= MenuFMode1;
-        } else { /*(mode == 0)*/
-            pts->newMenuStatus &= ~MenuFMode3;
-            pts->newMenuStatus &= ~MenuFMode2;
+        }
+        else
+        {
             pts->newMenuStatus &= ~MenuFMode1;
         }
+        if(mode & (1<<1))
+        {
+            pts->newMenuStatus |= MenuFMode2;
+        }
+        else
+        {
+            pts->newMenuStatus &= ~MenuFMode2;
+        }
+        if(mode & (1<<2))
+        {
+            pts->newMenuStatus |= MenuFMode3;
+        }
+        else
+        {
+            pts->newMenuStatus &= ~MenuFMode3;
+        }
+
     } else {
         pts->newMenuStatus = 0;
     }

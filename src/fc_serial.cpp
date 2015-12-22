@@ -12,23 +12,39 @@ unsigned long previous_millis_high =0;
 uint32_t modeMSPRequests;
 uint32_t queuedMSPRequests;
 
+typedef enum {
+    BOXARM = 0,
+    BOXANGLE,
+    BOXHORIZON,
+    BOXNAVALTHOLD,  // old BOXBARO
+    //BOXVARIO,
+    BOXMAG,
+    BOXHEADFREE,
+    BOXHEADADJ,
+    BOXCAMSTAB,
+    BOXCAMTRIG,
+    BOXNAVRTH,      // old GPSHOME
+    BOXNAVPOSHOLD,  // old GPSHOLD
+    BOXPASSTHRU,
+    BOXBEEPERON,
+    BOXLEDMAX,
+    BOXLEDLOW,
+    BOXLLIGHTS,
+    //BOXCALIB,
+    BOXGOV,
+    BOXOSD,
+    BOXTELEMETRY,
+    BOXGTUNE,
+    BOXSERVO1,
+    BOXSERVO2,
+    BOXSERVO3,
+    BOXBLACKBOX,
+    BOXFAILSAFE,
+    BOXNAVWP,
+    BOXAIRMODE,
+    CHECKBOX_ITEM_COUNT
+} boxId_e;
 
-// Mode bits
-struct {
-  uint8_t armed;
-  uint8_t stable;
-  uint8_t horizon;
-  uint8_t baro;
-  uint8_t mag;
-  uint16_t camstab;
-  uint16_t gpshome;
-  uint16_t gpshold;
-  uint16_t passthru;
-  uint32_t osd_switch;
-  uint32_t llights;
-  uint32_t gpsmission;
-  uint32_t gpsland;
-}mode;
 
 
 
@@ -809,28 +825,43 @@ void FC_Serial::setChannels(pluginToSim *pts)
                 inp = (input)/500.0;
             inp=inp/0.7;
             float channelValue = qBound(-1.0f, inp, 1.0f);
-            if(telem.Mixer!=MIXER_FLYING_WING && telem.Mixer!=MIXER_AIRPLANE) // multi
+            //if(telem.Mixer!=MIXER_FLYING_WING && telem.Mixer!=MIXER_AIRPLANE) // multi
             {
                 // replace simulators transmitter
                 pts->chNewTX[mapTo]  = channelValue;
                 pts->chOverTX[mapTo] = true;
-            }
+            }/*
             else
             {
                 // direct connect to ESC/motors/ailerons/etc
                 pts->chNewRX[mapTo]  = channelValue;
                 pts->chOverRX[mapTo] = true;
-            }
+            }*/
         }
     }
 }
 
-void FC_Serial::getFlightStatus(quint8 &arm, quint8 &mod, quint8 &mixer)
+void FC_Serial::getFlightStatus(quint8 &arm, quint32 &mod, quint8 &mixer)
 {
     QMutexLocker locker(&mutex);
 
     arm = telem.armed==1?2:0;
-    mod = 1;
+    mod = 0;
+
+    //qDebug() << telem.MwSensorActive << " " << (1<<BOXANGLE) << " " << (1<<BOXNAVPOSHOLD) << " " << (1<<BOXNAVRTH);
+    if(telem.MwSensorActive & (1<<BOXANGLE))
+    {
+       mod |= 1;
+    }
+    if(telem.MwSensorActive & (1<<BOXNAVPOSHOLD))
+    {
+       mod |= 2;
+    }
+    if(telem.MwSensorActive & (1<<BOXNAVRTH))
+    {
+       mod |= 4;
+    }
+    //mod = telem.MwSensorActive;
     mixer = telem.Mixer;
 }
 
